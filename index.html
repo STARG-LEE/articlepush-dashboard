@@ -3,108 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>기사 밀어내기 연구 — DB 적재 현황</title>
+<title>기사 밀어내기 — DB 적재 현황</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <style>
   :root{
-    --bg:#f7f6f1; --card:#ffffff; --soft:#f1efe8; --ink:#2c2c2a; --mut:#6b6a64; --hint:#8f8e87;
-    --line:#e1e0d9; --ok:#0f7a57; --okbg:#e1f5ee; --gray:#8a897f; --acc:#185fa5; --accbg:#e6f1fb;
+    --bg:#f5f4ef; --card:#ffffff; --soft:#efece4; --ink:#211f1b; --mut:#6f6d65; --hint:#94928a;
+    --line:#e7e5db; --ok:#16855f; --okbg:#e6f6ef; --gray:#9c9a8f; --graybg:#f0eee6;
+    --pe:#2f6fb0; --pebg:#e8f1fa; --np:#bd7a14; --npbg:#faf0db; --sec:#6f56c0; --secbg:#efebfb;
+    --shadow:0 1px 2px rgba(40,38,33,.04), 0 4px 16px rgba(40,38,33,.05);
   }
   @media (prefers-color-scheme: dark){
-    :root{ --bg:#1a1a19; --card:#242422; --soft:#2c2c2a; --ink:#ededeb; --mut:#a8a79e; --hint:#76756e;
-      --line:#34332f; --ok:#5dcaa5; --okbg:#0f3a30; --gray:#76756e; --acc:#85b7eb; --accbg:#103153; }
+    :root{ --bg:#161513; --card:#201f1c; --soft:#2a2925; --ink:#ecebe6; --mut:#a7a59b; --hint:#75736b;
+      --line:#322f2a; --ok:#54c79f; --okbg:#103a2e; --gray:#75736b; --graybg:#2a2925;
+      --pe:#7fb0e6; --pebg:#15324f; --np:#e0a948; --npbg:#3a2c10; --sec:#a795ea; --secbg:#2a2350;
+      --shadow:0 1px 2px rgba(0,0,0,.2), 0 4px 18px rgba(0,0,0,.28);}
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--ink);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-    -webkit-font-smoothing:antialiased;line-height:1.6;}
-  .wrap{max-width:880px;margin:0 auto;padding:36px 22px 56px;}
-  h1{font-size:23px;font-weight:600;margin:0 0 4px;}
-  .sub{font-size:14px;color:var(--mut);margin:0 0 26px;}
-  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px;}
-  .k{background:var(--soft);border-radius:12px;padding:14px 16px;}
-  .k .l{font-size:13px;color:var(--mut);margin-bottom:5px;}
-  .k .v{font-size:25px;font-weight:600;letter-spacing:-.3px;}
-  .bar-l{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin:0 0 7px;}
-  .bar{height:9px;background:var(--soft);border-radius:999px;overflow:hidden;margin-bottom:30px;}
-  .bar > i{display:block;height:100%;background:var(--ok);border-radius:999px;}
-  .person{margin-bottom:18px;}
-  .ph{display:flex;align-items:center;gap:9px;margin-bottom:3px;}
-  .badge{width:34px;height:24px;border-radius:6px;background:var(--accbg);color:var(--acc);
-    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;letter-spacing:.5px;}
-  .pn{font-weight:600;font-size:14px;}
-  .pc{font-size:12px;color:var(--hint);}
-  .row{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--line);}
-  .dot{width:9px;height:9px;border-radius:50%;flex:none;}
-  .co{flex:1;min-width:0;}
-  .co .n{font-weight:600;font-size:14px;}
-  .co .s{font-size:12px;color:var(--mut);}
-  .pill{font-size:11px;padding:3px 9px;border-radius:6px;white-space:nowrap;font-weight:500;}
-  .p-ok{background:var(--okbg);color:var(--ok);}
-  .p-bk{background:var(--accbg);color:var(--acc);}
-  .p-no{color:var(--hint);font-size:12px;}
-  .pills{display:flex;gap:6px;align-items:center;}
-  .legend{display:flex;gap:20px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:24px;
-    padding-top:16px;border-top:1px solid var(--line);}
-  .legend span{display:flex;align-items:center;gap:6px;}
-  .foot{margin-top:18px;font-size:12px;color:var(--hint);}
-  .num{font-variant-numeric:tabular-nums;}
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.55;}
+  .wrap{max-width:960px;margin:0 auto;padding:42px 22px 60px;}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--pe);margin:0 0 8px;}
+  h1{font-size:27px;font-weight:700;margin:0 0 6px;letter-spacing:-.4px;}
+  .sub{font-size:14.5px;color:var(--mut);margin:0 0 30px;}
+
+  .hero{display:flex;gap:26px;align-items:center;flex-wrap:wrap;background:var(--card);
+    border:1px solid var(--line);border-radius:20px;padding:24px 28px;box-shadow:var(--shadow);margin-bottom:14px;}
+  .ring{position:relative;flex:none;}
+  .ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ring .big{font-size:30px;font-weight:700;letter-spacing:-1px;line-height:1;}
+  .ring .cap{font-size:12px;color:var(--mut);margin-top:3px;}
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;flex:1;min-width:260px;}
+  .tile .l{font-size:12.5px;color:var(--mut);margin-bottom:5px;}
+  .tile .v{font-size:24px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
+  .tile .u{font-size:12px;color:var(--hint);font-weight:500;}
+
+  .sec-h{font-size:13px;font-weight:600;color:var(--mut);margin:30px 2px 12px;letter-spacing:.02em;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:14px;}
+  .cc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 17px;
+    box-shadow:var(--shadow);transition:transform .15s, box-shadow .15s;position:relative;overflow:hidden;}
+  .cc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ok);}
+  .cc.none::before{background:var(--gray);}
+  .cc:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(40,38,33,.06),0 10px 26px rgba(40,38,33,.1);}
+  .cc-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;}
+  .cc-name{font-size:16px;font-weight:700;letter-spacing:-.3px;}
+  .chip{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:6px;white-space:nowrap;}
+  .t-PE{background:var(--pebg);color:var(--pe);}
+  .t-np{background:var(--npbg);color:var(--np);}
+  .t-sec{background:var(--secbg);color:var(--sec);}
+  .pid{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--hint);margin-bottom:13px;}
+  .pid b{color:var(--mut);font-weight:600;letter-spacing:.4px;}
+  .nums{display:flex;gap:18px;margin-bottom:13px;}
+  .nums div .n{font-size:19px;font-weight:700;letter-spacing:-.4px;font-variant-numeric:tabular-nums;}
+  .nums div .k{font-size:11.5px;color:var(--hint);}
+  .ratio{height:5px;background:var(--soft);border-radius:99px;overflow:hidden;margin-bottom:12px;}
+  .ratio i{display:block;height:100%;background:var(--ok);border-radius:99px;}
+  .cc-foot{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+  .f-ok{font-size:11px;font-weight:600;color:var(--ok);background:var(--okbg);padding:3px 9px;border-radius:7px;}
+  .f-bk{font-size:11px;font-weight:600;color:var(--pe);background:var(--pebg);padding:3px 9px;border-radius:7px;}
+  .f-no{font-size:12px;color:var(--hint);}
+
+  .legend{display:flex;gap:22px;flex-wrap:wrap;font-size:12.5px;color:var(--mut);margin-top:26px;
+    padding-top:18px;border-top:1px solid var(--line);}
+  .legend span{display:flex;align-items:center;gap:7px;}
+  .sw{width:11px;height:11px;border-radius:3px;}
+  .foot{margin-top:14px;font-size:12px;color:var(--hint);}
+  .foot a{color:var(--pe);text-decoration:none;}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>기사 밀어내기 연구 — 학교 DB 적재 현황</h1>
-  <p class="sub">PE/비PE 부정이슈 10개 사건 · 담당자별 수집·임베딩 적재 상태 (이니셜 표기)</p>
-  <div class="kpi" id="kpi"></div>
-  <div class="bar-l"><span>임베딩까지 적재 완료</span><span id="pl" class="num"></span></div>
-  <div class="bar"><i id="pf" style="width:0"></i></div>
-  <div id="list"></div>
+  <p class="eyebrow">articlepush · 학교서버 DB</p>
+  <h1>기사 밀어내기 연구 — 적재 현황</h1>
+  <p class="sub">PE·비PE 부정이슈 10개 사건의 뉴스 수집·임베딩 적재 상태 (담당 이니셜)</p>
+
+  <div class="hero">
+    <div class="ring">
+      <svg viewBox="0 0 132 132" width="132" height="132" role="img" aria-label="10개 기업 중 9개 적재 완료">
+        <circle cx="66" cy="66" r="56" fill="none" stroke="var(--soft)" stroke-width="13"/>
+        <circle id="arc" cx="66" cy="66" r="56" fill="none" stroke="var(--ok)" stroke-width="13"
+          stroke-linecap="round" transform="rotate(-90 66 66)"/>
+      </svg>
+      <div class="ctr"><div class="big" id="ring-n"></div><div class="cap">적재 완료</div></div>
+    </div>
+    <div class="tiles" id="tiles"></div>
+  </div>
+
+  <div class="sec-h">기업별 현황 · 10건</div>
+  <div class="grid" id="grid"></div>
+
   <div class="legend">
-    <span><span class="dot" style="background:var(--ok)"></span>적재완료 (기사+임베딩 4종)</span>
-    <span><span class="dot" style="background:var(--gray)"></span>미수집</span>
-    <span><span class="pill p-bk" style="padding:2px 7px">bucket</span>churnalism 5분류</span>
+    <span><span class="sw" style="background:var(--ok)"></span>적재완료</span>
+    <span><span class="sw" style="background:var(--gray)"></span>미수집</span>
+    <span><span class="chip t-PE">PE</span>사모펀드</span>
+    <span><span class="chip t-np">비PE</span>정산피해</span>
+    <span><span class="chip t-sec">경제안보</span>해외인수</span>
+    <span><span class="f-bk" style="padding:2px 7px">bucket</span>churnalism 5분류</span>
   </div>
   <p class="foot" id="foot"></p>
 </div>
 <script>
-const people=[
- {id:'PDK',companies:[
-   {co:'고려아연',art:72525,rel:50188,bucket:0,status:'done'},
-   {co:'홈플러스',art:100289,rel:47059,bucket:0,status:'done'}]},
- {id:'CHG',companies:[
-   {co:'롯데카드',art:33423,rel:14681,bucket:0,status:'done'},
-   {co:'마키노',art:810,rel:192,bucket:0,status:'done'}]},
- {id:'CSH',companies:[
-   {co:'락앤락',art:0,rel:0,bucket:0,status:'none'}]},
- {id:'LGS',companies:[
-   {co:'큐텐',art:29652,rel:14255,bucket:14255,status:'done'},
-   {co:'남양유업',art:17849,rel:10986,bucket:10986,status:'done'}]},
- {id:'KJH',companies:[
-   {co:'오스템임플란트',art:7502,rel:7502,bucket:0,status:'done'}]},
- {id:'PJH',companies:[
-   {co:'bhc치킨',art:29311,rel:18162,bucket:0,status:'done'}]},
- {id:'SBJ',companies:[
-   {co:'DN솔루션즈',art:4165,rel:2081,bucket:0,status:'done'}]},
+const data=[
+ {co:'고려아연',pid:'PDK',type:'PE',art:72525,rel:50188,bucket:0,done:1},
+ {co:'홈플러스',pid:'PDK',type:'PE',art:100289,rel:47059,bucket:0,done:1},
+ {co:'롯데카드',pid:'CHG',type:'PE',art:33423,rel:14681,bucket:0,done:1},
+ {co:'마키노',pid:'CHG',type:'PE',art:810,rel:192,bucket:0,done:1},
+ {co:'큐텐·티메프',pid:'LGS',type:'np',art:29652,rel:14255,bucket:14255,done:1},
+ {co:'남양유업',pid:'LGS',type:'PE',art:17849,rel:10986,bucket:10986,done:1},
+ {co:'오스템임플란트',pid:'KJH',type:'PE',art:7502,rel:7502,bucket:0,done:1},
+ {co:'bhc치킨',pid:'PJH',type:'PE',art:29311,rel:18162,bucket:0,done:1},
+ {co:'DN솔루션즈',pid:'SBJ',type:'sec',art:4165,rel:2081,bucket:0,done:1},
+ {co:'락앤락',pid:'CSH',type:'PE',art:0,rel:0,bucket:0,done:0},
 ];
 const fmt=n=>n.toLocaleString('en-US');
-let done=0,total=0,arts=0,emb=0,buckets=0;
-people.forEach(p=>p.companies.forEach(c=>{total++;if(c.status==='done'){done++;arts+=c.art;emb+=c.rel;}if(c.bucket>0)buckets++;}));
-const kpi=[['적재 기업',done+' / '+total],['총 기사',fmt(arts)],['관련 임베딩',fmt(emb)],['분류 bucket',buckets+'개사']];
-document.getElementById('kpi').innerHTML=kpi.map(k=>`<div class="k"><div class="l">${k[0]}</div><div class="v num">${k[1]}</div></div>`).join('');
-document.getElementById('pf').style.width=Math.round(done/total*100)+'%';
-document.getElementById('pl').textContent=done+' / '+total+' 기업';
-const col={done:'var(--ok)',none:'var(--gray)'};
-document.getElementById('list').innerHTML=people.map(p=>{
-  const rows=p.companies.map(c=>{
-    const ok=c.status==='done';
-    const sub=ok?`기사 <span class="num">${fmt(c.art)}</span> · 관련 <span class="num">${fmt(c.rel)}</span>`:'미수집 (수집부터 필요)';
-    const pills=ok?`<span class="pill p-ok">임베딩 4종</span>${c.bucket>0?`<span class="pill p-bk">bucket ${fmt(c.bucket)}</span>`:''}`:`<span class="p-no">—</span>`;
-    return `<div class="row"><span class="dot" style="background:${col[c.status]}"></span>
-      <div class="co"><div class="n">${c.co}</div><div class="s">${sub}</div></div>
-      <div class="pills">${pills}</div></div>`;
-  }).join('');
-  return `<div class="person"><div class="ph"><span class="badge">${p.id}</span><span class="pn">${p.id}</span><span class="pc">${p.companies.length}개사</span></div>${rows}</div>`;
+const done=data.filter(d=>d.done).length, total=data.length;
+const arts=data.reduce((s,d)=>s+(d.done?d.art:0),0);
+const emb=data.reduce((s,d)=>s+(d.done?d.rel:0),0);
+const buckets=data.filter(d=>d.bucket>0).length;
+const C=2*Math.PI*56;
+const arc=document.getElementById('arc');
+arc.setAttribute('stroke-dasharray',(C*done/total).toFixed(1)+' '+(C*(1-done/total)).toFixed(1));
+document.getElementById('ring-n').textContent=done+'/'+total;
+const tiles=[['총 기사',fmt(arts),'건'],['관련 임베딩',fmt(emb),'4종'],['분류 bucket',buckets,'개사']];
+document.getElementById('tiles').innerHTML=tiles.map(t=>`<div class="tile"><div class="l">${t[0]}</div><div class="v">${t[1]} <span class="u">${t[2]}</span></div></div>`).join('');
+const tname={PE:'t-PE',np:'t-np',sec:'t-sec'}, tlabel={PE:'PE',np:'비PE',sec:'경제안보'};
+const sorted=[...data].sort((a,b)=> b.done-a.done || b.rel-a.rel);
+document.getElementById('grid').innerHTML=sorted.map(d=>{
+  if(!d.done) return `<div class="cc none">
+    <div class="cc-top"><span class="cc-name">${d.co}</span><span class="chip ${tname[d.type]}">${tlabel[d.type]}</span></div>
+    <div class="pid"><b>${d.pid}</b> · 담당</div>
+    <div class="nums"><div><div class="n">—</div><div class="k">기사</div></div></div>
+    <div class="cc-foot"><span class="f-no">미수집 · 수집부터 필요</span></div></div>`;
+  const r=Math.round(d.rel/d.art*100);
+  return `<div class="cc">
+    <div class="cc-top"><span class="cc-name">${d.co}</span><span class="chip ${tname[d.type]}">${tlabel[d.type]}</span></div>
+    <div class="pid"><b>${d.pid}</b> · 담당</div>
+    <div class="nums">
+      <div><div class="n">${fmt(d.art)}</div><div class="k">기사</div></div>
+      <div><div class="n">${fmt(d.rel)}</div><div class="k">관련 임베딩</div></div>
+    </div>
+    <div class="ratio" title="관련 ${r}%"><i style="width:${r}%"></i></div>
+    <div class="cc-foot"><span class="f-ok">임베딩 4종</span>${d.bucket>0?`<span class="f-bk">bucket ${fmt(d.bucket)}</span>`:''}</div>
+  </div>`;
 }).join('');
-document.getElementById('foot').textContent='DB: articlepush (학교서버) · 임베딩 4종 = bge-m3·OpenAI 3-large × 본문·명사 · 갱신 2026-06-27';
+document.getElementById('foot').innerHTML='DB <code>articlepush</code> (학교서버) · 임베딩 4종 = bge-m3 · OpenAI 3-large × 본문 · 명사 &nbsp;|&nbsp; 갱신 2026-06-27';
 </script>
 </body>
 </html>
