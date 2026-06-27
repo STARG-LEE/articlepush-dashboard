@@ -3,150 +3,123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>기사 밀어내기 — DB 적재 현황</title>
+<title>기사 밀어내기 — 작업 현황</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <style>
   :root{
     --bg:#f5f4ef; --card:#ffffff; --soft:#efece4; --ink:#211f1b; --mut:#6f6d65; --hint:#94928a;
-    --line:#e7e5db; --ok:#16855f; --okbg:#e6f6ef; --gray:#9c9a8f; --graybg:#f0eee6;
+    --line:#e7e5db; --line2:#dedcd1; --ok:#16855f; --okbg:#e6f6ef; --gray:#9c9a8f;
     --pe:#2f6fb0; --pebg:#e8f1fa; --np:#bd7a14; --npbg:#faf0db; --sec:#6f56c0; --secbg:#efebfb;
-    --shadow:0 1px 2px rgba(40,38,33,.04), 0 4px 16px rgba(40,38,33,.05);
+    --rowh:#faf9f5; --shadow:0 1px 2px rgba(40,38,33,.04), 0 6px 20px rgba(40,38,33,.05);
   }
   @media (prefers-color-scheme: dark){
     :root{ --bg:#161513; --card:#201f1c; --soft:#2a2925; --ink:#ecebe6; --mut:#a7a59b; --hint:#75736b;
-      --line:#322f2a; --ok:#54c79f; --okbg:#103a2e; --gray:#75736b; --graybg:#2a2925;
+      --line:#322f2a; --line2:#3a372f; --ok:#54c79f; --okbg:#103a2e; --gray:#75736b;
       --pe:#7fb0e6; --pebg:#15324f; --np:#e0a948; --npbg:#3a2c10; --sec:#a795ea; --secbg:#2a2350;
-      --shadow:0 1px 2px rgba(0,0,0,.2), 0 4px 18px rgba(0,0,0,.28);}
+      --rowh:#262420; --shadow:0 1px 2px rgba(0,0,0,.2), 0 6px 22px rgba(0,0,0,.3);}
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--ink);
     font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-    -webkit-font-smoothing:antialiased;line-height:1.55;}
-  .wrap{max-width:960px;margin:0 auto;padding:42px 22px 60px;}
+    -webkit-font-smoothing:antialiased;line-height:1.5;}
+  .wrap{max-width:980px;margin:0 auto;padding:42px 22px 60px;}
   .eyebrow{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--pe);margin:0 0 8px;}
   h1{font-size:27px;font-weight:700;margin:0 0 6px;letter-spacing:-.4px;}
-  .sub{font-size:14.5px;color:var(--mut);margin:0 0 30px;}
-
-  .hero{display:flex;gap:26px;align-items:center;flex-wrap:wrap;background:var(--card);
-    border:1px solid var(--line);border-radius:20px;padding:24px 28px;box-shadow:var(--shadow);margin-bottom:14px;}
-  .ring{position:relative;flex:none;}
-  .ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-  .ring .big{font-size:30px;font-weight:700;letter-spacing:-1px;line-height:1;}
-  .ring .cap{font-size:12px;color:var(--mut);margin-top:3px;}
-  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;flex:1;min-width:260px;}
-  .tile .l{font-size:12.5px;color:var(--mut);margin-bottom:5px;}
-  .tile .v{font-size:24px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
-  .tile .u{font-size:12px;color:var(--hint);font-weight:500;}
-
-  .sec-h{font-size:13px;font-weight:600;color:var(--mut);margin:30px 2px 12px;letter-spacing:.02em;}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:14px;}
-  .cc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 17px;
-    box-shadow:var(--shadow);transition:transform .15s, box-shadow .15s;position:relative;overflow:hidden;}
-  .cc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--ok);}
-  .cc.none::before{background:var(--gray);}
-  .cc:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(40,38,33,.06),0 10px 26px rgba(40,38,33,.1);}
-  .cc-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;}
-  .cc-name{font-size:16px;font-weight:700;letter-spacing:-.3px;}
+  .sub{font-size:14.5px;color:var(--mut);margin:0 0 26px;}
+  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:30px;}
+  .k{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow);}
+  .k .l{font-size:12px;color:var(--mut);margin-bottom:5px;}
+  .k .v{font-size:22px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
+  .k .v small{font-size:12px;color:var(--hint);font-weight:500;}
+  .tw{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;}
+  .scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:680px;}
+  thead th{background:var(--soft);color:var(--mut);font-weight:600;font-size:11.5px;letter-spacing:.03em;
+    text-align:left;padding:11px 13px;white-space:nowrap;border-bottom:1px solid var(--line2);}
+  thead th.c{text-align:center;}
+  tbody td{padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover td{background:var(--rowh);}
+  td.pid{font-weight:600;color:var(--mut);font-size:12.5px;letter-spacing:.4px;white-space:nowrap;
+    background:var(--card);border-right:1px solid var(--line);vertical-align:middle;}
+  td.co{font-weight:700;font-size:14px;letter-spacing:-.2px;white-space:nowrap;}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  td.c{text-align:center;}
   .chip{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:6px;white-space:nowrap;}
-  .t-PE{background:var(--pebg);color:var(--pe);}
-  .t-np{background:var(--npbg);color:var(--np);}
-  .t-sec{background:var(--secbg);color:var(--sec);}
-  .pid{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--hint);margin-bottom:13px;}
-  .pid b{color:var(--mut);font-weight:600;letter-spacing:.4px;}
-  .nums{display:flex;gap:18px;margin-bottom:13px;}
-  .nums div .n{font-size:19px;font-weight:700;letter-spacing:-.4px;font-variant-numeric:tabular-nums;}
-  .nums div .k{font-size:11.5px;color:var(--hint);}
-  .ratio{height:5px;background:var(--soft);border-radius:99px;overflow:hidden;margin-bottom:12px;}
-  .ratio i{display:block;height:100%;background:var(--ok);border-radius:99px;}
-  .cc-foot{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-  .f-ok{font-size:11px;font-weight:600;color:var(--ok);background:var(--okbg);padding:3px 9px;border-radius:7px;}
-  .f-bk{font-size:11px;font-weight:600;color:var(--pe);background:var(--pebg);padding:3px 9px;border-radius:7px;}
-  .f-no{font-size:12px;color:var(--hint);}
-
-  .legend{display:flex;gap:22px;flex-wrap:wrap;font-size:12.5px;color:var(--mut);margin-top:26px;
-    padding-top:18px;border-top:1px solid var(--line);}
+  .t-PE{background:var(--pebg);color:var(--pe);} .t-np{background:var(--npbg);color:var(--np);} .t-sec{background:var(--secbg);color:var(--sec);}
+  .ck{color:var(--ok);font-weight:700;font-size:15px;}
+  .dh{color:var(--hint);}
+  .pl{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap;}
+  .pl.ok{background:var(--okbg);color:var(--ok);} .pl.mid{background:var(--npbg);color:var(--np);} .pl.acc{background:var(--pebg);color:var(--pe);}
+  tr.miss td.co,tr.miss td{color:var(--hint);}
+  .legend{display:flex;gap:22px;flex-wrap:wrap;font-size:12.5px;color:var(--mut);margin-top:22px;}
   .legend span{display:flex;align-items:center;gap:7px;}
-  .sw{width:11px;height:11px;border-radius:3px;}
   .foot{margin-top:14px;font-size:12px;color:var(--hint);}
-  .foot a{color:var(--pe);text-decoration:none;}
+  .foot code{background:var(--soft);padding:1px 5px;border-radius:4px;font-size:11.5px;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <p class="eyebrow">articlepush · 학교서버 DB</p>
-  <h1>기사 밀어내기 연구 — 적재 현황</h1>
-  <p class="sub">PE·비PE 부정이슈 10개 사건의 뉴스 수집·임베딩 적재 상태 (담당 이니셜)</p>
-
-  <div class="hero">
-    <div class="ring">
-      <svg viewBox="0 0 132 132" width="132" height="132" role="img" aria-label="10개 기업 중 9개 적재 완료">
-        <circle cx="66" cy="66" r="56" fill="none" stroke="var(--soft)" stroke-width="13"/>
-        <circle id="arc" cx="66" cy="66" r="56" fill="none" stroke="var(--ok)" stroke-width="13"
-          stroke-linecap="round" transform="rotate(-90 66 66)"/>
-      </svg>
-      <div class="ctr"><div class="big" id="ring-n"></div><div class="cap">적재 완료</div></div>
-    </div>
-    <div class="tiles" id="tiles"></div>
-  </div>
-
-  <div class="sec-h">기업별 현황 · 10건</div>
-  <div class="grid" id="grid"></div>
-
+  <h1>기사 밀어내기 연구 — 작업 현황</h1>
+  <p class="sub">PE·비PE 부정이슈 10개 사건 · 담당(이니셜)별 수집 → 분류 → 임베딩 → 5분류 → 동조화 분석</p>
+  <div class="kpi" id="kpi"></div>
+  <div class="tw"><div class="scroll"><table>
+    <thead><tr>
+      <th>담당</th><th>기업</th><th>유형</th>
+      <th class="c">기사</th><th class="c">임베딩</th><th class="c">분류</th><th class="c">5분류</th><th class="c">동조화 분석</th>
+    </tr></thead>
+    <tbody id="tb"></tbody>
+  </table></div></div>
   <div class="legend">
-    <span><span class="sw" style="background:var(--ok)"></span>적재완료</span>
-    <span><span class="sw" style="background:var(--gray)"></span>미수집</span>
-    <span><span class="chip t-PE">PE</span>사모펀드</span>
-    <span><span class="chip t-np">비PE</span>정산피해</span>
-    <span><span class="chip t-sec">경제안보</span>해외인수</span>
-    <span><span class="f-bk" style="padding:2px 7px">bucket</span>churnalism 5분류</span>
+    <span><span class="ck">✓</span> 완료</span>
+    <span><span class="dh">—</span> 없음 / 미수집</span>
+    <span><span class="pl acc">5분류</span> churnalism bucket</span>
+    <span><span class="pl ok">리포트</span> 표7·그림7+보조지표</span>
+    <span><span class="pl mid">기본</span> 동조화 지표</span>
   </div>
   <p class="foot" id="foot"></p>
 </div>
 <script>
 const data=[
- {co:'고려아연',pid:'PDK',type:'PE',art:72525,rel:50188,bucket:0,done:1},
- {co:'홈플러스',pid:'PDK',type:'PE',art:100289,rel:47059,bucket:0,done:1},
- {co:'롯데카드',pid:'CHG',type:'PE',art:33423,rel:14681,bucket:0,done:1},
- {co:'마키노',pid:'CHG',type:'PE',art:810,rel:192,bucket:0,done:1},
- {co:'큐텐·티메프',pid:'LGS',type:'np',art:29652,rel:14255,bucket:14255,done:1},
- {co:'남양유업',pid:'LGS',type:'PE',art:17849,rel:10986,bucket:10986,done:1},
- {co:'오스템임플란트',pid:'KJH',type:'PE',art:7502,rel:7502,bucket:0,done:1},
- {co:'bhc치킨',pid:'PJH',type:'PE',art:29311,rel:18162,bucket:0,done:1},
- {co:'DN솔루션즈',pid:'SBJ',type:'sec',art:4165,rel:2081,bucket:0,done:1},
- {co:'락앤락',pid:'CSH',type:'PE',art:0,rel:0,bucket:0,done:0},
+ {co:'고려아연',pid:'PDK',type:'PE',art:72525,rel:50188,cls:2,bucket:0,ana:1},
+ {co:'홈플러스',pid:'PDK',type:'PE',art:100289,rel:47059,cls:2,bucket:0,ana:0},
+ {co:'롯데카드',pid:'CHG',type:'PE',art:33423,rel:14681,cls:2,bucket:0,ana:1},
+ {co:'마키노',pid:'CHG',type:'PE',art:810,rel:192,cls:2,bucket:0,ana:1},
+ {co:'락앤락',pid:'CSH',type:'PE',art:0,rel:0,cls:0,bucket:0,ana:0},
+ {co:'큐텐·티메프',pid:'LGS',type:'np',art:29652,rel:14255,cls:2,bucket:14255,ana:2},
+ {co:'남양유업',pid:'LGS',type:'PE',art:17849,rel:10986,cls:2,bucket:10986,ana:2},
+ {co:'오스템임플란트',pid:'KJH',type:'PE',art:7502,rel:7502,cls:2,bucket:0,ana:1},
+ {co:'bhc치킨',pid:'PJH',type:'PE',art:29311,rel:18162,cls:2,bucket:0,ana:1},
+ {co:'DN솔루션즈',pid:'SBJ',type:'sec',art:4165,rel:2081,cls:2,bucket:0,ana:0},
 ];
 const fmt=n=>n.toLocaleString('en-US');
-const done=data.filter(d=>d.done).length, total=data.length;
-const arts=data.reduce((s,d)=>s+(d.done?d.art:0),0);
-const emb=data.reduce((s,d)=>s+(d.done?d.rel:0),0);
-const buckets=data.filter(d=>d.bucket>0).length;
-const C=2*Math.PI*56;
-const arc=document.getElementById('arc');
-arc.setAttribute('stroke-dasharray',(C*done/total).toFixed(1)+' '+(C*(1-done/total)).toFixed(1));
-document.getElementById('ring-n').textContent=done+'/'+total;
-const tiles=[['총 기사',fmt(arts),'건'],['관련 임베딩',fmt(emb),'4종'],['분류 bucket',buckets,'개사']];
-document.getElementById('tiles').innerHTML=tiles.map(t=>`<div class="tile"><div class="l">${t[0]}</div><div class="v">${t[1]} <span class="u">${t[2]}</span></div></div>`).join('');
-const tname={PE:'t-PE',np:'t-np',sec:'t-sec'}, tlabel={PE:'PE',np:'비PE',sec:'경제안보'};
-const sorted=[...data].sort((a,b)=> b.done-a.done || b.rel-a.rel);
-document.getElementById('grid').innerHTML=sorted.map(d=>{
-  if(!d.done) return `<div class="cc none">
-    <div class="cc-top"><span class="cc-name">${d.co}</span><span class="chip ${tname[d.type]}">${tlabel[d.type]}</span></div>
-    <div class="pid"><b>${d.pid}</b> · 담당</div>
-    <div class="nums"><div><div class="n">—</div><div class="k">기사</div></div></div>
-    <div class="cc-foot"><span class="f-no">미수집 · 수집부터 필요</span></div></div>`;
-  const r=Math.round(d.rel/d.art*100);
-  return `<div class="cc">
-    <div class="cc-top"><span class="cc-name">${d.co}</span><span class="chip ${tname[d.type]}">${tlabel[d.type]}</span></div>
-    <div class="pid"><b>${d.pid}</b> · 담당</div>
-    <div class="nums">
-      <div><div class="n">${fmt(d.art)}</div><div class="k">기사</div></div>
-      <div><div class="n">${fmt(d.rel)}</div><div class="k">관련 임베딩</div></div>
-    </div>
-    <div class="ratio" title="관련 ${r}%"><i style="width:${r}%"></i></div>
-    <div class="cc-foot"><span class="f-ok">임베딩 4종</span>${d.bucket>0?`<span class="f-bk">bucket ${fmt(d.bucket)}</span>`:''}</div>
-  </div>`;
-}).join('');
-document.getElementById('foot').innerHTML='DB <code>articlepush</code> (학교서버) · 임베딩 4종 = bge-m3 · OpenAI 3-large × 본문 · 명사 &nbsp;|&nbsp; 갱신 2026-06-27';
+const inDB=data.filter(d=>d.art>0).length;
+const arts=data.reduce((s,d)=>s+d.art,0), emb=data.reduce((s,d)=>s+d.rel,0);
+const nb=data.filter(d=>d.bucket>0).length, na=data.filter(d=>d.ana>0).length;
+const kpi=[['적재 기업',inDB+' <small>/ '+data.length+'</small>'],['총 기사',fmt(arts)],['관련 임베딩',fmt(emb)+' <small>4종</small>'],['5분류',nb+' <small>개사</small>'],['동조화 분석',na+' <small>개사</small>']];
+document.getElementById('kpi').innerHTML=kpi.map(k=>`<div class="k"><div class="l">${k[0]}</div><div class="v">${k[1]}</div></div>`).join('');
+const tch={PE:['t-PE','PE'],np:['t-np','비PE'],sec:['t-sec','경제안보']};
+const ck=`<span class="ck">✓</span>`, dh=`<span class="dh">—</span>`;
+const clsCell=v=>v===2?ck:(v===1?`<span class="pl mid">일부</span>`:dh);
+const bkCell=v=>v>0?`<span class="pl acc">✓ ${fmt(v)}</span>`:dh;
+const anaCell=v=>v===2?`<span class="pl ok">리포트</span>`:(v===1?`<span class="pl mid">기본</span>`:dh);
+let html='', i=0;
+while(i<data.length){
+  let j=i; while(j<data.length && data[j].pid===data[i].pid) j++;
+  const span=j-i;
+  for(let r=i;r<j;r++){
+    const d=data[r], [tc,tl]=tch[d.type], miss=d.art===0;
+    html+=`<tr class="${miss?'miss':''}">`;
+    if(r===i) html+=`<td class="pid" rowspan="${span}">${d.pid}</td>`;
+    html+=`<td class="co">${d.co}</td><td><span class="chip ${tc}">${tl}</span></td>`;
+    html+=`<td class="num">${miss?dh:fmt(d.art)}</td><td class="num">${d.rel?fmt(d.rel):dh}</td>`;
+    html+=`<td class="c">${clsCell(d.cls)}</td><td class="c">${bkCell(d.bucket)}</td><td class="c">${anaCell(d.ana)}</td></tr>`;
+  }
+  i=j;
+}
+document.getElementById('tb').innerHTML=html;
+document.getElementById('foot').innerHTML='DB <code>articlepush</code> (학교서버) · 임베딩 4종 = bge-m3 · OpenAI 3-large × 본문·명사 · 담당 이니셜(PDK·CHG·CSH·LGS·KJH·PJH·SBJ) · 갱신 2026-06-27';
 </script>
 </body>
 </html>
