@@ -82,8 +82,8 @@
 const data=[
  {co:'고려아연',pid:'PDK',type:'PE',art:72525,rel:50188,cls:2,bucket:0,ana:1},
  {co:'홈플러스',pid:'PDK',type:'PE',art:100289,rel:47059,cls:2,bucket:0,ana:0},
- {co:'롯데카드',pid:'CHG',type:'PE',art:33423,rel:14681,cls:2,bucket:0,ana:1},
- {co:'마키노',pid:'CHG',type:'PE',art:810,rel:192,cls:2,bucket:0,ana:1},
+ {co:'롯데카드',pid:'CHG',type:'PE',art:33423,rel:14681,cls:2,bucket:0,bk:1,ana:1},
+ {co:'마키노',pid:'CHG',type:'PE',art:810,rel:192,cls:2,bucket:0,bk:1,ana:1},
  {co:'락앤락',pid:'CSH',type:'PE',art:11502,rel:5973,cls:2,bucket:0,ana:1,emb:'oai'},
  {co:'큐텐·티메프',pid:'LGS',type:'np',art:29652,rel:14255,cls:2,bucket:14255,ana:2},
  {co:'남양유업',pid:'LGS',type:'PE',art:17849,rel:10986,cls:2,bucket:10986,ana:2},
@@ -94,13 +94,13 @@ const data=[
 const fmt=n=>n.toLocaleString('en-US');
 const inDB=data.filter(d=>d.art>0).length;
 const arts=data.reduce((s,d)=>s+d.art,0), emb=data.reduce((s,d)=>s+d.rel,0);
-const nb=data.filter(d=>d.bucket>0).length;
+const nb=data.filter(d=>d.bucket>0||d.bk).length;
 const kpi=[['적재 기업',inDB+' <small>/ '+data.length+'</small>'],['총 기사',fmt(arts)],['관련 임베딩',fmt(emb)+' <small>4종</small>'],['5분류',nb+' <small>개사</small>']];
 document.getElementById('kpi').innerHTML=kpi.map(k=>`<div class="k"><div class="l">${k[0]}</div><div class="v">${k[1]}</div></div>`).join('');
 const tch={PE:['t-PE','PE'],np:['t-np','비PE'],sec:['t-sec','경제안보']};
 const ck=`<span class="ck">✓</span>`, dh=`<span class="dh">—</span>`;
 const clsCell=v=>v===2?ck:(v===1?`<span class="pl mid">일부</span>`:dh);
-const bkCell=v=>v>0?`<span class="pl acc">✓ ${fmt(v)}</span>`:dh;
+const bkCell=d=>d.bucket>0?`<span class="pl acc">✓ ${fmt(d.bucket)}</span>`:(d.bk?`<span class="pl acc">✓</span>`:dh);
 let html='', i=0;
 while(i<data.length){
   let j=i; while(j<data.length && data[j].pid===data[i].pid) j++;
@@ -111,7 +111,7 @@ while(i<data.length){
     if(r===i) html+=`<td class="pid" rowspan="${span}">${d.pid}</td>`;
     html+=`<td class="co">${d.co}</td><td><span class="chip ${tc}">${tl}</span></td>`;
     html+=`<td class="num">${miss?dh:fmt(d.art)}</td><td class="num">${d.rel?fmt(d.rel)+(d.emb==='oai'?' <span style="color:var(--hint);font-size:10.5px;font-weight:600">OAI</span>':''):dh}</td>`;
-    html+=`<td class="c">${clsCell(d.cls)}</td><td class="c">${bkCell(d.bucket)}</td></tr>`;
+    html+=`<td class="c">${clsCell(d.cls)}</td><td class="c">${bkCell(d)}</td></tr>`;
   }
   i=j;
 }
