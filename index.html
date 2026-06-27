@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기사 밀어내기 연구 — DB 적재 현황</title>
+<style>
+  :root{
+    --bg:#f7f6f1; --card:#ffffff; --soft:#f1efe8; --ink:#2c2c2a; --mut:#6b6a64; --hint:#8f8e87;
+    --line:#e1e0d9; --ok:#0f7a57; --okbg:#e1f5ee; --gray:#8a897f; --acc:#185fa5; --accbg:#e6f1fb;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#1a1a19; --card:#242422; --soft:#2c2c2a; --ink:#ededeb; --mut:#a8a79e; --hint:#76756e;
+      --line:#34332f; --ok:#5dcaa5; --okbg:#0f3a30; --gray:#76756e; --acc:#85b7eb; --accbg:#103153; }
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.6;}
+  .wrap{max-width:880px;margin:0 auto;padding:36px 22px 56px;}
+  h1{font-size:23px;font-weight:600;margin:0 0 4px;}
+  .sub{font-size:14px;color:var(--mut);margin:0 0 26px;}
+  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px;}
+  .k{background:var(--soft);border-radius:12px;padding:14px 16px;}
+  .k .l{font-size:13px;color:var(--mut);margin-bottom:5px;}
+  .k .v{font-size:25px;font-weight:600;letter-spacing:-.3px;}
+  .bar-l{display:flex;justify-content:space-between;font-size:13px;color:var(--mut);margin:0 0 7px;}
+  .bar{height:9px;background:var(--soft);border-radius:999px;overflow:hidden;margin-bottom:30px;}
+  .bar > i{display:block;height:100%;background:var(--ok);border-radius:999px;}
+  .person{margin-bottom:18px;}
+  .ph{display:flex;align-items:center;gap:9px;margin-bottom:3px;}
+  .badge{width:34px;height:24px;border-radius:6px;background:var(--accbg);color:var(--acc);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;letter-spacing:.5px;}
+  .pn{font-weight:600;font-size:14px;}
+  .pc{font-size:12px;color:var(--hint);}
+  .row{display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--line);}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+  .co{flex:1;min-width:0;}
+  .co .n{font-weight:600;font-size:14px;}
+  .co .s{font-size:12px;color:var(--mut);}
+  .pill{font-size:11px;padding:3px 9px;border-radius:6px;white-space:nowrap;font-weight:500;}
+  .p-ok{background:var(--okbg);color:var(--ok);}
+  .p-bk{background:var(--accbg);color:var(--acc);}
+  .p-no{color:var(--hint);font-size:12px;}
+  .pills{display:flex;gap:6px;align-items:center;}
+  .legend{display:flex;gap:20px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:24px;
+    padding-top:16px;border-top:1px solid var(--line);}
+  .legend span{display:flex;align-items:center;gap:6px;}
+  .foot{margin-top:18px;font-size:12px;color:var(--hint);}
+  .num{font-variant-numeric:tabular-nums;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>기사 밀어내기 연구 — 학교 DB 적재 현황</h1>
+  <p class="sub">PE/비PE 부정이슈 10개 사건 · 담당자별 수집·임베딩 적재 상태 (이니셜 표기)</p>
+  <div class="kpi" id="kpi"></div>
+  <div class="bar-l"><span>임베딩까지 적재 완료</span><span id="pl" class="num"></span></div>
+  <div class="bar"><i id="pf" style="width:0"></i></div>
+  <div id="list"></div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--ok)"></span>적재완료 (기사+임베딩 4종)</span>
+    <span><span class="dot" style="background:var(--gray)"></span>미수집</span>
+    <span><span class="pill p-bk" style="padding:2px 7px">bucket</span>churnalism 5분류</span>
+  </div>
+  <p class="foot" id="foot"></p>
+</div>
+<script>
+const people=[
+ {id:'PDK',companies:[
+   {co:'고려아연',art:72525,rel:50188,bucket:0,status:'done'},
+   {co:'홈플러스',art:100289,rel:47059,bucket:0,status:'done'}]},
+ {id:'CHG',companies:[
+   {co:'롯데카드',art:33423,rel:14681,bucket:0,status:'done'},
+   {co:'마키노',art:810,rel:192,bucket:0,status:'done'}]},
+ {id:'CSH',companies:[
+   {co:'락앤락',art:0,rel:0,bucket:0,status:'none'}]},
+ {id:'LGS',companies:[
+   {co:'큐텐',art:29652,rel:14255,bucket:14255,status:'done'},
+   {co:'남양유업',art:17849,rel:10986,bucket:10986,status:'done'}]},
+ {id:'KJH',companies:[
+   {co:'오스템임플란트',art:7502,rel:7502,bucket:0,status:'done'}]},
+ {id:'PJH',companies:[
+   {co:'bhc치킨',art:29311,rel:18162,bucket:0,status:'done'}]},
+ {id:'SBJ',companies:[
+   {co:'DN솔루션즈',art:4165,rel:2081,bucket:0,status:'done'}]},
+];
+const fmt=n=>n.toLocaleString('en-US');
+let done=0,total=0,arts=0,emb=0,buckets=0;
+people.forEach(p=>p.companies.forEach(c=>{total++;if(c.status==='done'){done++;arts+=c.art;emb+=c.rel;}if(c.bucket>0)buckets++;}));
+const kpi=[['적재 기업',done+' / '+total],['총 기사',fmt(arts)],['관련 임베딩',fmt(emb)],['분류 bucket',buckets+'개사']];
+document.getElementById('kpi').innerHTML=kpi.map(k=>`<div class="k"><div class="l">${k[0]}</div><div class="v num">${k[1]}</div></div>`).join('');
+document.getElementById('pf').style.width=Math.round(done/total*100)+'%';
+document.getElementById('pl').textContent=done+' / '+total+' 기업';
+const col={done:'var(--ok)',none:'var(--gray)'};
+document.getElementById('list').innerHTML=people.map(p=>{
+  const rows=p.companies.map(c=>{
+    const ok=c.status==='done';
+    const sub=ok?`기사 <span class="num">${fmt(c.art)}</span> · 관련 <span class="num">${fmt(c.rel)}</span>`:'미수집 (수집부터 필요)';
+    const pills=ok?`<span class="pill p-ok">임베딩 4종</span>${c.bucket>0?`<span class="pill p-bk">bucket ${fmt(c.bucket)}</span>`:''}`:`<span class="p-no">—</span>`;
+    return `<div class="row"><span class="dot" style="background:${col[c.status]}"></span>
+      <div class="co"><div class="n">${c.co}</div><div class="s">${sub}</div></div>
+      <div class="pills">${pills}</div></div>`;
+  }).join('');
+  return `<div class="person"><div class="ph"><span class="badge">${p.id}</span><span class="pn">${p.id}</span><span class="pc">${p.companies.length}개사</span></div>${rows}</div>`;
+}).join('');
+document.getElementById('foot').textContent='DB: articlepush (학교서버) · 임베딩 4종 = bge-m3·OpenAI 3-large × 본문·명사 · 갱신 2026-06-27';
+</script>
+</body>
+</html>
