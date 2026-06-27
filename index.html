@@ -86,7 +86,7 @@ const data=[
  {co:'홈플러스',pid:'PDK',type:'PE',art:100289,rel:47059,cls:2,bucket:0,ana:0},
  {co:'롯데카드',pid:'CHG',type:'PE',art:33423,rel:14681,cls:2,bucket:0,ana:1},
  {co:'마키노',pid:'CHG',type:'PE',art:810,rel:192,cls:2,bucket:0,ana:1},
- {co:'락앤락',pid:'CSH',type:'PE',art:0,rel:0,cls:0,bucket:0,ana:0},
+ {co:'락앤락',pid:'CSH',type:'PE',art:11502,rel:5973,cls:2,bucket:0,ana:1,emb:'oai'},
  {co:'큐텐·티메프',pid:'LGS',type:'np',art:29652,rel:14255,cls:2,bucket:14255,ana:2},
  {co:'남양유업',pid:'LGS',type:'PE',art:17849,rel:10986,cls:2,bucket:10986,ana:2},
  {co:'오스템임플란트',pid:'KJH',type:'PE',art:7502,rel:7502,cls:2,bucket:0,ana:1},
@@ -113,7 +113,7 @@ while(i<data.length){
     html+=`<tr class="${miss?'miss':''}">`;
     if(r===i) html+=`<td class="pid" rowspan="${span}">${d.pid}</td>`;
     html+=`<td class="co">${d.co}</td><td><span class="chip ${tc}">${tl}</span></td>`;
-    html+=`<td class="num">${miss?dh:fmt(d.art)}</td><td class="num">${d.rel?fmt(d.rel):dh}</td>`;
+    html+=`<td class="num">${miss?dh:fmt(d.art)}</td><td class="num">${d.rel?fmt(d.rel)+(d.emb==='oai'?' <span style="color:var(--hint);font-size:10.5px;font-weight:600">OAI</span>':''):dh}</td>`;
     html+=`<td class="c">${clsCell(d.cls)}</td><td class="c">${bkCell(d.bucket)}</td><td class="c">${anaCell(d.ana)}</td></tr>`;
   }
   i=j;
